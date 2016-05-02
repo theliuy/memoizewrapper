@@ -15,50 +15,53 @@ A python module provides decorators to store wrapped function's return values in
 
 ### Expiring cache decorator
 
-    import memoizewrapper
+```python
+import memoizewrapper
 
-	# cache will be expired in 10 seconds
-    # the stored/returned value will be deep-copied. Feel free to change them
-    # cache is based on parameter `param1`
-    @memoizewrapper.expiring_memoize(('param1',), 10, deepcopy=True)
-	def my_func(param1):
-		return param1
+# cache will be expired in 10 seconds
+# the stored/returned value will be deep-copied. Feel free to change them
+# cache is based on parameter `param1`
+@memoizewrapper.expiring_memoize(('param1',), 10, deepcopy=True)
+def my_func(param1):
+    return param1
 
-	# flush the cache
-	my_func.flush()
-
+# flush the cache
+my_func.flush()
+```
 
 ### Lru cache decorator
 
-	import memoizewrapper
+```python
+import memoizewrapper
 
-	# it mantains the cache by LRU algorithm, and the capacity is 3
-    # the stored/returned value is not deep-copied. It is better if the return values are immutable,
-	# (or, you remember not to modify them)
-    # cache is based on parameter `param1` and `param2`. Even if the returned values depend on
-	# `param3`, `param3` wont be a part of the key, see example below
-    @memoizewrapper.lru_memoize(('param1', 'param2', 'param3'), 3)
-	def my_func(param1, param2, param3):
-		return ', '.join(param1, param2, param3)
+# it mantains the cache by LRU algorithm, and the capacity is 3
+# the stored/returned value is not deep-copied. It is better if the return values are immutable,
+# (or, you remember not to modify them)
+# cache is based on parameter `param1` and `param2`. Even if the returned values depend on
+# `param3`, `param3` wont be a part of the key, see example below
+@memoizewrapper.lru_memoize(('param1', 'param2', 'param3'), 3)
+def my_func(param1, param2, param3):
+    return ', '.join(param1, param2, param3)
 
-	my_func('Good', 'morning', 'Beijing')  # 'Good morning Beijing'
-	my_func('Good', 'morning', 'Shanghai')  # 'Good morning Beijing'
-
+my_func('Good', 'morning', 'Beijing')  # 'Good morning Beijing'
+my_func('Good', 'morning', 'Shanghai')  # 'Good morning Beijing'
+```
 
 ### skip cache
 
-	import memoizewrapper
+```python
+import memoizewrapper
 
-	# Sometimes, you don't want to cache the return value. Let say we are querying a card database,
-	# we don't want to cache a card if it does not exist.
-	@memoizewrapper.lru_memoize(('card_id',), 1000, escape_cache_if=lambda x: x is None)
-	def query_card_name(card_id, db_connection):
-		cursor = db_connection.cursor()
-		cursor.execute('''SELECT `card_name` FROM `card` WHERE `card_id`=%(card_id)s''',
-					   {'card_id': card_id})
-		row = cursor.fetchone()
-		return row['card_name'] if row else None
-
+# Sometimes, you don't want to cache the return value. Let say we are querying a card database,
+# we don't want to cache a card if it does not exist.
+@memoizewrapper.lru_memoize(('card_id',), 1000, escape_cache_if=lambda x: x is None)
+def query_card_name(card_id, db_connection):
+    cursor = db_connection.cursor()
+    cursor.execute('''SELECT `card_name` FROM `card` WHERE `card_id`=%(card_id)s''',
+                   {'card_id': card_id})
+    row = cursor.fetchone()
+    return row['card_name'] if row else None
+```
 
 ### customize key generator and storage
 
