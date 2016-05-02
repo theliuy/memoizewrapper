@@ -34,14 +34,14 @@ my_func.flush()
 ```python
 import memoizewrapper
 
-# it mantains the cache by LRU algorithm, and the capacity is 3
+# it maintains the cache by LRU algorithm, and the capacity is 3
 # the stored/returned value is not deep-copied. It is better if the return values are immutable,
 # (or, you remember not to modify them)
 # cache is based on parameter `param1` and `param2`. Even if the returned values depend on
 # `param3`, `param3` wont be a part of the key, see example below
 @memoizewrapper.lru_memoize(('param1', 'param2', 'param3'), 3)
 def my_func(param1, param2, param3):
-    return ', '.join(param1, param2, param3)
+    return ', '.join([param1, param2, param3])
 
 my_func('Good', 'morning', 'Beijing')  # 'Good morning Beijing'
 my_func('Good', 'morning', 'Shanghai')  # 'Good morning Beijing'
