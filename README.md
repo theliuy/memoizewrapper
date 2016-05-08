@@ -39,7 +39,7 @@ import memoizewrapper
 # (or, you remember not to modify them)
 # cache is based on parameter `param1` and `param2`. Even if the returned values depend on
 # `param3`, `param3` wont be a part of the key, see example below
-@memoizewrapper.lru_memoize(('param1', 'param2', 'param3'), 3)
+@memoizewrapper.lru_memoize(('param1', 'param2'), 3)
 def my_func(param1, param2, param3):
     return ', '.join([param1, param2, param3])
 
