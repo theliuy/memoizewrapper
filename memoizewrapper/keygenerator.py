@@ -2,6 +2,7 @@ import hashlib
 import inspect
 
 try:
+    # noinspection PyPep8Naming
     import cPickle as pickle
 except ImportError:
     import pickle
@@ -9,7 +10,7 @@ except ImportError:
 
 class BaseKeyGenerator(object):
 
-    def register_function_parameters(self, function, template):
+    def register_function_parameters(self, function):
         raise NotImplementedError()
 
     def generate_key(self, *args, **kwargs):
@@ -18,32 +19,29 @@ class BaseKeyGenerator(object):
 
 class TupleKeyGenerator(BaseKeyGenerator):
 
-    def __init__(self):
+    def __init__(self, template=()):
         super(TupleKeyGenerator, self).__init__()
-        self._template = None
+        self._template = template
         self._template_args_index = None
         self._template_kwargs_default = None
 
-    def register_function_parameters(self, func, template=()):
+    def register_function_parameters(self, func):
         """
 
         :param func: decorated function
         :type func: callable
-        :param: a tuple template to generate keys
-        :type template: tuple
         :return:
         """
-        if not isinstance(template, tuple):
+        if not isinstance(self._template, tuple):
             raise TypeError('template must be a tuple')
 
         func_parameters = inspect.signature(func, follow_wrapped=True).parameters
 
-        self._template = template
         self._template_args_index = []
         self._template_kwargs_default = {}
 
         func_parameters_index = dict((param_name, i) for i, (param_name, _) in enumerate(func_parameters.items()))
-        for template_arg in template:
+        for template_arg in self._template:
             if template_arg not in func_parameters_index:
                 raise ValueError('%s is not a function parameter' % template_arg)
 

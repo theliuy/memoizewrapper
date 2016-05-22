@@ -1,4 +1,5 @@
 try:
+    # noinspection PyPep8Naming
     import cPickle as pickle
 except ImportError:
     import pickle
@@ -11,14 +12,12 @@ import memoizewrapper.keygenerator
 class KeyGenerator(unittest.TestCase):
 
     def test_tuple_key_generator_with_function(self):
-        generator = memoizewrapper.keygenerator.TupleKeyGenerator()
+        generator = memoizewrapper.keygenerator.TupleKeyGenerator(template=('firstname', 'lastname', 'number'))
 
         def test_func(firstname, lastname, address=None, number=''):
             return firstname, lastname, address, number
 
-        self.assertRaises(ValueError, generator.register_function_parameters, test_func,
-                          ('firstname', 'lastname', 'number_unknown'))
-        generator.register_function_parameters(test_func, ('firstname', 'lastname', 'number'))
+        generator.register_function_parameters(test_func)
 
         test_firstname = 'hello'
         test_lastname = 'world'

@@ -6,7 +6,6 @@ from . import storage
 
 class _MemoizeStorageManager(object):
     """
-        :type _key_generator_register_kwargs: dict
         :type _key_generator: keygenerator.BaseKeyGenerator
         :type _storage: storage.BaseStorage
         :type _escape_cache_if:
@@ -14,40 +13,32 @@ class _MemoizeStorageManager(object):
 
     def __init__(self,
                  func,
-                 key_generator_cls=keygenerator.TupleKeyGenerator,
-                 key_generator_register_kwargs=None,
-                 storage_cls=storage.ExpiringStorage,
-                 storage_init_kwargs=None,
+                 key_generator,
+                 storage_ins,
                  escape_cache_if=None):
         """
 
         :param func: decorated function
         :type func: callable
-        :param key_generator_cls: the class of create key generator instance
-        :type key_generator_cls: type(keygenerator.BaseKeyGenerator)
-        :param key_generator_register_kwargs: named parameters when register the wrapped function with key generator
-        :param storage_cls: the class of storage
-        :type storage_cls: type(storage.BaseStorage)
-        :param storage_init_kwargs: named parameters to create storage instance
-        :type storage_init_kwargs: dict
+        :param key_generator: instance of key generator
+        :type key_generator: keygenerator.BaseKeyGenerator
+        :param storage_ins: instance of storage
+        :type storage_ins: storage.BaseStorage
         :param escape_cache_if: do not cache if the return value is True
         :type escape_cache_if:
         :return:
 
         """
-        if not issubclass(key_generator_cls, keygenerator.BaseKeyGenerator):
-            raise TypeError('Key generator class must be a sub-class of BaseKeyGenerator')
-        if not issubclass(storage_cls, storage.BaseStorage):
-            raise TypeError('Storage class must be a sub-class of BaseStorage')
+        if not isinstance(key_generator, keygenerator.BaseKeyGenerator):
+            raise TypeError('Key generator must be a sub-class of BaseKeyGenerator')
+        if not isinstance(storage, storage.BaseStorage):
+            raise TypeError('Storage must be a sub-class of BaseStorage')
 
         self._func = func
 
-        self._key_generator_register_kwargs = key_generator_register_kwargs or {}
-        storage_init_kwargs = storage_init_kwargs or {}
-
-        self._storage = storage_cls(**storage_init_kwargs)
-        self._key_generator = key_generator_cls()
-        self._key_generator.register_function_parameters(self._func, **self._key_generator_register_kwargs)
+        self._storage = storage_ins
+        self._key_generator = key_generator
+        self._key_generator.register_function_parameters(func)
 
         # use a simple lambda function to avoid None check when use it
         self._escape_cache_if = escape_cache_if if escape_cache_if is not None else lambda x: False
@@ -90,19 +81,15 @@ def memorize_wrapper(*args, **kwargs):
 
 def expiring_memoize(key_template, expiration, deepcopy=False, escape_cache_if=None):
     return memorize_wrapper(
-        key_generator_cls=keygenerator.TupleKeyGenerator,
-        key_generator_register_kwargs={'template': key_template},
-        storage_cls=storage.ExpiringStorage,
-        storage_init_kwargs={'expiration': expiration, 'deepcopy': deepcopy},
+        keygenerator.TupleKeyGenerator(template=key_template),
+        storage.ExpiringStorage(expiration=expiration, deepcopy=deepcopy),
         escape_cache_if=escape_cache_if,
     )
 
 
 def lru_memoize(key_template, capacity, deepcopy=False, escape_cache_if=None):
     return memorize_wrapper(
-        key_generator_cls=keygenerator.TupleKeyGenerator,
-        key_generator_register_kwargs={'template': key_template},
-        storage_cls=storage.LruStorage,
-        storage_init_kwargs={'capacity': capacity, 'deepcopy': deepcopy},
+        keygenerator.TupleKeyGenerator(template=key_template),
+        storage.LruStorage(capacity=capacity, deepcopy=deepcopy),
         escape_cache_if=escape_cache_if,
     )
