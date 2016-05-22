@@ -2,6 +2,8 @@
 
 A python module provides decorators to store wrapped function's return values into memory. They are used on relatively expensive functions, which allows a certain delay. For example, they can be used when load meta data from database, which is assumed won't change frequently.
 
+WARNING: It is tested in Python 3.5.1. `keygenerator` module uses `inspect`, which keeps changing (the interface was changed after 3.4.4 even). In `test` part, `nonlocal` is used also, which makes Python 2.x unhappy. Making it compatible with Python 2.6.x to 3.5.x is on my list.
+
 ## Features
 
 - Expiring Memoize decorator which allows user to set a time-to-live on cache. (Of course, 0 means forever)
